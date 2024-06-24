@@ -18,22 +18,22 @@ class IncomeExpenseTracker
         $this->category = "";
     }
 
-    public function getIncome(): int
+    public function getIncome(): float
     {
         return $this->income;
     }
 
-    public function getExpense(): int
+    public function getExpense(): float
     {
         return $this->expense;
     }
 
-    public function setIncome(int $money): void
+    public function setIncome(float $money): void
     {
         $this->income = $money;
     }
 
-    public function setExpense(int $money): void
+    public function setExpense(float $money): void
     {
         $this->expense = $money;
     }

@@ -1,2 +1,6 @@
-./vendor
-/vendor
+/vendor/
+.env
+.DS_Store
+/node_modules/
+/composer.lock
+/*.log

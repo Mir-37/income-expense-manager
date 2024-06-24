@@ -1,7 +1,8 @@
 <?php
-// require_once "vendor/autoload.php";
+require __DIR__ . '/vendor/autoload.php';
 
-use Hellm\ExpenseApp\src\IncomeExpenseTracker;
+use Hellm\ExpenseApp\IncomeExpenseTracker;
 
-$a = new IncomeExpenseTracker();
-echo $a->getIncome();
+$tracker = new IncomeExpenseTracker();
+
+echo $tracker->getIncome();

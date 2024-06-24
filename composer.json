@@ -1,0 +1,14 @@
+{
+	"name": "hellm/expense_app",
+	"description": "Test Project",
+	"type": "project",
+	"require": {
+		"symfony/console": "^6.4"
+	},
+	"license": "MIT open license",
+	"autoload": {
+		"psr-4": {
+			"Hellm\\ExpenseApp\\": "src/"
+		}
+	}
+}

@@ -6,6 +6,7 @@ use Hellm\ExpenseApp\IncomeExpenseTracker;
 
 $tracker = new IncomeExpenseTracker();
 $file = new FileManager();
-$file->createFile("users", null);
+// print_r($file->createFile("users", null));
+echo $file->createFile("user", null);
 
 // echo $tracker->getIncome();

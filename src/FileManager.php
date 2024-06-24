@@ -7,8 +7,9 @@ use DateTime;
 class FileManager
 {
     public array $data;
-    public mixed $file;
-
+    private mixed $file;
+    public string $directory;
+    public array $headers = ["id", "amount", "category", "type"];
     // function getAllIncomeData(): array
     // {
     //     return [];
@@ -65,12 +66,20 @@ class FileManager
 
     public function createFile(string $name, ?array $names)
     {
+        $this->directory = dirname(__DIR__) . "/files/";
+        if (!is_dir($this->directory)) {
+            mkdir($this->directory, "0777", true);
+        }
         if (!is_null($names)) {
             for ($i = 0; $i < count($names); $i++) {
-                $this->file = fopen(__DIR__ . "/files/" . $names[$i] . '.csv', "w");
+                $this->file = fopen($this->directory . $names[$i] . '.csv', "w");
+                fputcsv($this->file, $this->headers);
             }
         } else {
-            $this->file = fopen(__DIR__ . "/files/" . $name . ".csv", "w");
+            $this->file = fopen($this->directory . $name . ".csv", "w");
+            fputcsv($this->file, $this->headers);
         }
+
+        fclose($this->file);
     }
 }

@@ -1,5 +1,4 @@
-id,amount,category,type
-1,200,Bazar,Expense,2020-12-08
-1,200,Bazar,Expense,2020-12-08
-5,200,UnBAxar,Expense,2920-12-08
-1,200,Bazar,Inp,2020-12-08
+id,amount,category,type,date
+5,300,Goru,Expense,2920-12-08
+2,2000,Bazar12,Expense,2020-12-19
+3,20023,Bazar12,Expense,2020-12-19

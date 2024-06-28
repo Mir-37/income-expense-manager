@@ -3,99 +3,121 @@
 namespace Hellm\ExpenseApp;
 
 use DateTime;
+use Exception;
 
 class FileManager
 {
-    public array $data;
-    private mixed $file;
+    public array $data = [];
     private string $file_name;
+    private string $file_path;
     public string $directory;
-    public array $headers = ["id", "amount", "category", "type", "user_name"];
+    public array $headers = ["id", "amount", "category", "type", "user_name", "date"];
     private int $id = 0;
+
+    // columns in numbers from csv file
+    const ID = 0;
+    const AMOUNT = 1;
+    const CATEGORY = 2;
+    const TYPE = 3;
+    const DATE = 4;
 
     public function __construct(string $file_name)
     {
         $this->directory = dirname(__DIR__) . "/files/";
+        $this->file_name = $file_name . ".csv";
+        $this->file_path = $this->directory . $this->file_name;
+        $this->initFile();
+        $this->loadLastId();
+    }
+
+    private function openFile(string $mode): mixed
+    {
+        $file = fopen($this->file_path, $mode);
+
+        if ($file === false) {
+            throw new Exception("Unable to openS file: " . $this->file_path);
+        }
+
+        return $file;
+    }
+
+    public function initFile(): void
+    {
         if (!is_dir($this->directory)) {
             mkdir($this->directory, "0777", true);
         }
-        if (!file_exists($this->directory . $file_name . ".csv")) {
-            $this->file = fopen($this->directory . $file_name . ".csv", "w");
-            fputcsv($this->file, $this->headers);
-            fclose($this->file);
+        if (!file_exists($this->file_path)) {
+            $file = $this->openFile("w");
+            fputcsv($file, $this->headers);
+            fclose($file);
         }
-
-        $csvToArray = file($this->directory . $file_name . ".csv", FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-        $lastLine = end($csvToArray);
-        $fields = str_getcsv($lastLine);
-        $this->id = $fields[0];
     }
 
-    public function getAllData(string $file_name): array
+    public function loadLastId(): void
     {
-        $filePath = $this->directory . $file_name . ".csv";
+        $file = file($this->file_path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
 
-        $csvArray = array_map('str_getcsv', file($filePath));
+        if ($file === false || count($file) <= 1) {
+            $this->id = 0;
+        } else {
+            $lastLine = end($file);
+            $fields = str_getcsv($lastLine);
+            $this->id = (int)$fields[self::ID];
+        }
+    }
+
+    public function getAllData(): array
+    {
+        $csvArray = array_map('str_getcsv', file($this->file_path));
 
         return $csvArray;
     }
 
-    public function getId(): int
+    public function getNextId(): int
     {
-        return $this->id++;
-    }
-    public function insert(array $data, string $file_name): void
-    {
-        $this->file = fopen($this->directory . $file_name . ".csv", "w");
-        fputcsv($this->file, $data);
-        fclose($this->file);
+        return ++$this->id;
     }
 
-    public function update(int $id, array $data, string $file_name): void
+    public function insert(array $data): void
     {
-        $filePath = $this->directory . $file_name . ".csv";
+        $file = $this->openFile("a");
+        fputcsv($file, $data);
+        fclose($file);
+    }
 
-        $csvArray = array_map('str_getcsv', file($filePath));
+    public function update(int $id, array $data): void
+    {
+        $csvArray = array_map('str_getcsv', file($this->file_path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES));
 
-        // var_dump(file($filePath));
-
-        $file = fopen($filePath, "w");
+        $file = $this->openFile("w");
 
         foreach ($csvArray as $rowIndex => $row) {
-            if ($rowIndex == 0) {
+            if ($rowIndex == 0 || (int)$row[self::ID] != $id) {
                 fputcsv($file, $row);
-                continue;
+            } else {
+                $new_data = [
+                    $row[self::ID],
+                    $data[0] ?? $row[self::AMOUNT],
+                    $data[1] ?? $row[self::CATEGORY],
+                    $data[2] ?? $row[self::TYPE],
+                    $data[3] ?? $row[self::DATE],
+                ];
+                fputcsv($file, $new_data);
             }
-
-            if ($row[0] == $id) {
-                $row[1] = $data[0] ?? $row[1];
-                $row[2] = $data[1] ?? $row[2];
-                $row[3] = $data[2] ?? $row[3];
-                $row[4] = $data[3] ?? $row[4];
-            }
-
-            fputcsv($file, $row);
         }
-
         fclose($file);
     }
 
 
-    public function delete(int $id, string $file_name): void
+    public function delete(int $id): void
     {
-        $filePath = $this->directory . $file_name . ".csv";
 
-        $csvArray = array_map('str_getcsv', file($filePath));
+        $csvArray = array_map('str_getcsv', file($this->file_path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES));
 
-        $file = fopen($filePath, "w");
+        $file = $this->openFile("w");
 
         foreach ($csvArray as $rowIndex => $row) {
-            if ($rowIndex == 0) {
-                fputcsv($file, $row);
-                continue;
-            }
-
-            if ($row[0] != $id) {
+            if ($rowIndex == 0 || (int)$row[self::ID] != $id) {
                 fputcsv($file, $row);
             }
         }

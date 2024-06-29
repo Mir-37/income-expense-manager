@@ -1,5 +1,7 @@
 <?php
 
+namespace Hellm\ExpenseApp;
+
 class Constant
 {
     // ID at 0
@@ -7,8 +9,8 @@ class Constant
 
     //info file
     const USER_ID = 1;
-    const CATEGORY = 2;
-    const AMOUNT = 3;
+    const AMOUNT = 2;
+    const CATEGORY = 3;
     const TYPE = 4;
     const DATE_ADDED = 5;
 

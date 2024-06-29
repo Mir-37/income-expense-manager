@@ -2,57 +2,86 @@
 
 namespace Hellm\ExpenseApp;
 
+use Hellm\ExpenseApp\FileManagement\InfoFile;
+use Hellm\ExpenseApp\AuthManager;
 use Exception;
-use Hellm\ExpenseApp\FileManagement\UserFile;
-use Hellm\ExpenseApp\FileManager;
-
+use DateTime;
+use Hellm\ExpenseApp\Traits\Helper;
 
 class IncomeExpenseTracker
 {
-    private float $income;
-    private string $user_name;
-    private float $expense;
-    private float $total;
+    use Helper;
+    private float $income = 0.0;
+    private float $expense = 0.0;
+    private float $total = 0.0;
+    private array $categories;
     private string $category;
-    private UserFile $file;
+    private AuthManager $auth_manager;
     private array $data;
+    private InfoFile $infoFile;
+    public array $income_array;
+    public array $expense_array;
 
-    // columns in numbers from csv file
-    const ID = 0;
-    const AMOUNT = 1;
-    const CATEGORY = 2;
-    const TYPE = 3;
-    const DATE = 4;
-    const USER = 5;
-
-    public function __construct()
+    public function __construct(AuthManager $auth_manager)
     {
-        $this->income = 0.0;
-        $this->expense = 0.0;
-        $this->total = 0.0;
-        $this->category = "";
-        $this->user_name = "";
-        $this->file = new UserFile();
+        $this->auth_manager = $auth_manager;
+        $this->infoFile = new InfoFile();
+        $this->data = $this->getInfoFromUser($this->auth_manager);
     }
 
-    // public function makeData(): void
-    // {
-    //     $this->data = [$this->file->getId(), $this->get]
-    // }
-
-    public function getIncome(): float
+    public function addEntry(string $type, float $amount, string $category = ""): void
     {
+        if (!in_array(strtolower($type), ['income', 'expense', 'category'])) {
+            throw new Exception("Invalid entry type. Must be 'income', 'expense', or 'category'.");
+        }
+        if ($amount < 0) {
+            throw new Exception(ucfirst($type) . " amount can't be negative");
+        }
+        if (count($this->data) >= 1) {
+            $this->total = $this->getTotalIncome() - $this->getTotalExpense();
+        } else {
+            $this->total = 0.0;
+        }
+        $data = [
+            'user_id' => $this->auth_manager->getUserId(),
+            'category' => $category,
+            'amount' => $amount,
+            'type' => $type,
+            'total' => $this->total,
+            'date_added' => (new DateTime('now'))->format('Y-m-d')
+        ];
+
+        $this->infoFile->insert($data);
+    }
+
+    public function getTotalIncome(): float
+    {
+        $this->income_array = array_filter($this->data, function ($rec) {
+            return strtolower($rec[Constant::TYPE]) === 'income';
+        });
+
+        $this->income = array_sum(array_column($this->income_array, Constant::AMOUNT));
         return $this->income;
     }
 
-    public function getExpense(): float
+    public function getTotalExpense(): float
     {
+        $this->expense_array = array_filter($this->data, function ($rec) {
+            return strtolower($rec[Constant::TYPE]) === 'expense';
+        });
+
+        $this->expense = array_sum(array_column($this->expense_array, Constant::AMOUNT));
         return $this->expense;
     }
 
-    public function getCategory(): string
+    public function getCategories(): array
     {
-        return $this->category;
+        $category_array = array_filter($this->data, function ($rec) {
+            return strtolower($rec[Constant::CATEGORY]) !== '';
+        });
+
+        $this->categories = array_unique(array_column($category_array, Constant::CATEGORY));
+        return $this->categories;
     }
 
     public function setCategory(string $category)
@@ -61,98 +90,39 @@ class IncomeExpenseTracker
         $this->category = $category;
     }
 
-    public function addIncome(float $money): void
+    public function getAllData(): array
     {
-        if ($money < 0) throw new Exception("Income can't be negative");
-        $this->income += $money;
+        return $this->data;
     }
 
-    public function addExpense(float $money): void
+    public function viewEachIncome()
     {
-        if ($money < 0) throw new Exception("Expense can't be negative");
-        $this->expense += $money;
-    }
-
-    public function setUser(string $user)
-    {
-        if (empty($user)) throw new Exception("User can't be empty");
-        $this->user_name = $user;
-    }
-
-    public function getUser(): string
-    {
-        return $this->user_name;
-    }
-
-    public function filterDataByUser(): array
-    {
-        $users_data = $this->file->getAllDataFromFile();
-
-        return array_filter($users_data, function ($record): bool {
-            if (strtolower($record[self::USER]) === strtolower($this->user_name)) {
-                return true;
-            }
-            return false;
+        return array_filter($this->data, function ($rec) {
+            return strtolower($rec[Constant::TYPE]) === 'income';
         });
-    }
-
-    public function viewIncome()
-    {
-        $datas = $this->file->getAllDataFromFile("users");
-        foreach ($datas as $key => $value) {
-            if (strtolower($value[2]) == "income" && strtolower($this->getUser()) == $value[4]) {
-                foreach ($value as $k => $v) {
-                    echo $v;
-                }
-            }
-        }
     }
 
     public function viewExpense()
     {
-        $datas = $this->file->getAllDataFromFile("users");
-        foreach ($datas as $key => $value) {
-            if (strtolower($value[2]) == "expense" && strtolower($this->getUser()) == $value[4]) {
-                foreach ($value as $k => $v) {
-                    echo $v;
-                }
-            }
-        }
+        return array_filter($this->data, function ($rec) {
+            return strtolower($rec[Constant::TYPE]) === 'expense';
+        });
     }
 
     public function viewSavings(): float
     {
-        $total = 0.0;
-        $datas = $this->file->getAllDataFromFile("users");
-        foreach ($datas as $key => $value) {
-            if (strtolower($value[2]) == "expense" && strtolower($this->getUser()) == $value[4]) {
-                $total -= $value[2];
-            } else if (strtolower($value[2]) == "income" && strtolower($this->getUser()) == $value[4]) {
-                $total += $value[2];
-            }
-        }
-        return $total;
+        return $this->total;
     }
 
     public function viewAllCategories()
     {
-        $datas = $this->file->getAllDataFromFile("users");
-        foreach ($datas as $key => $value) {
-            if (strtolower($this->getUser()) == $value[4]) {
-                echo $value[2];
-            }
-        }
+        return $this->getCategories();
     }
 
     public function viewIncomeExpenseCategoryWise(string $category)
     {
-        $datas = $this->file->getAllDataFromFile("users");
-        foreach ($datas as $key => $value) {
-            if (strtolower($value[1]) == strtolower($category) && strtolower($this->getUser()) == $value[4]) {
-                foreach ($value as $k => $v) {
-                    echo $v;
-                }
-            }
-        }
+        return array_filter($this->data, function ($rec) use ($category) {
+            return strtolower($rec[Constant::CATEGORY]) === strtolower($category);
+        });
     }
 }

@@ -2,7 +2,9 @@
 
 namespace Hellm\ExpenseApp\FileManagement;
 
-use Constant;
+use DateTime;
+use Hellm\ExpenseApp\Constant;
+use Stringable;
 
 class UserFile extends FileManager
 {
@@ -11,7 +13,7 @@ class UserFile extends FileManager
 
     public function __construct()
     {
-        parent::__construct("user", ["id", "name", "email", "password", "auth_mode", "created_at"]);
+        parent::__construct("user", ["id", "name", "email", "password", "created_at"]);
     }
 
     protected function prepareUpdateData(array $row, array $data): array
@@ -27,14 +29,15 @@ class UserFile extends FileManager
 
     protected function prepareInsertData(array $data): array
     {
+        $date = new DateTime('now');
+        $result = $date->format('Y-m-d');
         $this->id = parent::loadLastId();
         return [
             ++$this->id,
             $data['name'],
             $data['email'],
             $data['password'],
-            $data['auth_mode'],
-            $data['created_at']
+            $data['created_at'] ?? $result
         ];
     }
 }

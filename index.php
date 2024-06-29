@@ -1,15 +1,20 @@
 #!/usr/bin/env php
 <?php
+require __DIR__ . '/vendor/autoload.php';
 
-
-require './bootstrap.php';
-
+// use Hellm\ExpenseApp\AuthManager;
+use Hellm\ExpenseApp\AuthManager;
 use Hellm\ExpenseApp\Commands\MainMenu;
+use Hellm\ExpenseApp\IncomeExpenseTracker;
+use Symfony\Component\Console\Application;
+use Hellm\ExpenseApp\Commands\MainCommandClass;
+use Hellm\ExpenseApp\FileManagement\FileManager;
 
-
-$app = new App("Income Expense Tracker", "1.0.0");
-$app->add(new MainMenu());
+$app = new Application("Income Expense Tracker", "1.0.0");
+$app->add(new MainCommandClass());
 $app->run();
+// $auth = new AuthManager();
+// print_r($auth->authenticate("Mir", "password") ?? "nope");
 // use Hellm\ExpenseApp\IncomeExpenseTracker;
 // use Symfony\Component\Console\Application;
 // use Hellm\ExpenseApp\FileManagement\FileManager;

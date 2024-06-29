@@ -4,7 +4,7 @@ namespace Hellm\ExpenseApp\FileManagement;
 
 use DateTime;
 use Exception;
-use Constant;
+use Hellm\ExpenseApp\Constant;
 
 abstract class FileManager
 {
@@ -17,7 +17,8 @@ abstract class FileManager
 
     public function __construct(string $file_name, array $headers)
     {
-        $this->directory = dirname(__DIR__) . "/resources/";
+        $this->directory = dirname(dirname(__DIR__)) . "/resources/";
+        // echo $this->directory;
         $this->file_name = $file_name . ".csv";
         $this->file_path = $this->directory . $this->file_name;
         $this->headers = $headers;
@@ -72,8 +73,9 @@ abstract class FileManager
     public function insert(array $data): void
     {
         $file = $this->openFile("a");
-        $prepareData = $this->prepareInsertData($data);
-        fputcsv($file, $prepareData);
+        $preparedData = $this->prepareInsertData($data);
+        fputcsv($file, $preparedData);
+        fflush($file);
         fclose($file);
     }
 

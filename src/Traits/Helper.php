@@ -2,14 +2,14 @@
 
 namespace Hellm\ExpenseApp\Traits;
 
+use Hellm\ExpenseApp\AuthManager;
 use Hellm\ExpenseApp\FileManagement\InfoFile;
-use Constant;
+use Hellm\ExpenseApp\Constant;
 use Hellm\ExpenseApp\FileManagement\UserFile;
 
 
 trait Helper
 {
-    public int $current_user_id;
     public function getDataOf(int $user_id): array
     {
         $info = new InfoFile();
@@ -28,11 +28,11 @@ trait Helper
     {
         $user = new UserFile();
         $csvArray = $user->getAllDataFromFile();
-
+        // print_r($csvArray);
         foreach ($csvArray as $key => $value) {
             if (
                 strtolower($value[Constant::NAME]) === strtolower($nameOrEmail) ||
-                strtolower($value[Constant::EMAIL]) === strtolower($nameOrEmail)
+                $value[Constant::EMAIL] === $nameOrEmail
             ) {
                 return [
                     'id' =>  $value[Constant::ID],
@@ -42,7 +42,20 @@ trait Helper
                     'created_at' => $value[Constant::CREATED_AT],
                 ];
             }
-            return null;
         }
+        return null;
+    }
+
+    function getInfoFromUser(AuthManager $auth_manager): array
+    {
+        $infos = new InfoFile();
+        $users_data = $infos->getAllDataFromFile();
+
+        return array_filter($users_data, function ($record) use ($auth_manager): bool {
+            if (strtolower((int)$record[Constant::USER_ID]) === $auth_manager->getUserId()) {
+                return true;
+            }
+            return false;
+        });
     }
 }

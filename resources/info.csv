@@ -1,0 +1,4 @@
+id,user_id,amount,category,type,date_added
+5,1,300,Goru,Expense,2920-12-08
+2,1,2000,Bazar12,Expense,2020-12-19
+3,2,20023,Bazar12,Expense,2020-12-19

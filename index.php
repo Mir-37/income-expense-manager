@@ -1,9 +1,9 @@
 <?php
 require __DIR__ . '/vendor/autoload.php';
 
-use Hellm\ExpenseApp\FileManager;
 use Hellm\ExpenseApp\IncomeExpenseTracker;
 use Symfony\Component\Console\Application;
+use Hellm\ExpenseApp\FileManagement\FileManager;
 
 $application = new Application("Income Expense Tracker", "1.0.0");
 // $auth = new AuthManager();
@@ -12,11 +12,11 @@ $application = new Application("Income Expense Tracker", "1.0.0");
 // if ($auth->authenticate()) {
 //     // then set the user name in IncomeExpenseTracker
 // }
-$file = new FileManager("user");
+// $file = new FileManager("user");
 // print_r($file->createFile("users", null));
 // $file->insert([$file->getNextId(), "20023", "Bazar12", "Expense", "2020-12-19"]);
 // $file->update(id: 5, amount: "300", category: "Goru", type: "Expense", date: "2920-12-08");
-$file->delete(1);
+// $file->delete(1);
 // echo $tracker->getIncome();
 
 // get input from user data

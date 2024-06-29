@@ -1,36 +1,45 @@
+#!/usr/bin/env php
 <?php
-require __DIR__ . '/vendor/autoload.php';
 
-use Hellm\ExpenseApp\IncomeExpenseTracker;
-use Symfony\Component\Console\Application;
-use Hellm\ExpenseApp\FileManagement\FileManager;
 
-$application = new Application("Income Expense Tracker", "1.0.0");
-// $auth = new AuthManager();
-// $tracker = new IncomeExpenseTracker();
+require './bootstrap.php';
 
-// if ($auth->authenticate()) {
-//     // then set the user name in IncomeExpenseTracker
-// }
-// $file = new FileManager("user");
-// print_r($file->createFile("users", null));
-// $file->insert([$file->getNextId(), "20023", "Bazar12", "Expense", "2020-12-19"]);
-// $file->update(id: 5, amount: "300", category: "Goru", type: "Expense", date: "2920-12-08");
-// $file->delete(1);
-// echo $tracker->getIncome();
+use Hellm\ExpenseApp\Commands\MainMenu;
 
-// get input from user data
 
-// register user
+$app = new App("Income Expense Tracker", "1.0.0");
+$app->add(new MainMenu());
+$app->run();
+// use Hellm\ExpenseApp\IncomeExpenseTracker;
+// use Symfony\Component\Console\Application;
+// use Hellm\ExpenseApp\FileManagement\FileManager;
 
-// login user
+// $application = new Application("Income Expense Tracker", "1.0.0");
+// // $auth = new AuthManager();
+// // $tracker = new IncomeExpenseTracker();
 
-// show main menu:
-// Add category, Add new info, Update info, Delete info, Delete category
-// Show whole history in main menu, if datas exceed 10+ press 2 see all history
-// Search date wise, category wise, income wise, expense wise
-// Show current savings
+// // if ($auth->authenticate()) {
+// //     // then set the user name in IncomeExpenseTracker
+// // }
+// // $file = new FileManager("user");
+// // print_r($file->createFile("users", null));
+// // $file->insert([$file->getNextId(), "20023", "Bazar12", "Expense", "2020-12-19"]);
+// // $file->update(id: 5, amount: "300", category: "Goru", type: "Expense", date: "2920-12-08");
+// // $file->delete(1);
+// // echo $tracker->getIncome();
 
-// log out user
+// // get input from user data
 
-$application->run();
+// // register user
+
+// // login user
+
+// // show main menu:
+// // Add category, Add new info, Update info, Delete info, Delete category
+// // Show whole history in main menu, if datas exceed 10+ press 2 see all history
+// // Search date wise, category wise, income wise, expense wise
+// // Show current savings
+
+// // log out user
+
+// $application->run();

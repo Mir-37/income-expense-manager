@@ -1,8 +1,11 @@
 <?php
 
+namespace Hellm\ExpenseApp\Traits;
+
 use Hellm\ExpenseApp\FileManagement\InfoFile;
 use Constant;
 use Hellm\ExpenseApp\FileManagement\UserFile;
+
 
 trait Helper
 {
@@ -32,6 +35,7 @@ trait Helper
                 strtolower($value[Constant::EMAIL]) === strtolower($nameOrEmail)
             ) {
                 return [
+                    'id' =>  $value[Constant::ID],
                     'name' => $value[Constant::NAME],
                     'email' => $value[Constant::EMAIL],
                     'password' => $value[Constant::PASSWORD],

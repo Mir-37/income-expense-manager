@@ -3,6 +3,7 @@
 use Constant;
 
 use Hellm\ExpenseApp\FileManagement\UserFile;
+use Hellm\ExpenseApp\Traits\Helper;
 
 class AuthManager
 {
@@ -37,13 +38,15 @@ class AuthManager
         }
     }
 
-    public function authenticate(string $nameOrEmail, string $password): bool
+    public function authenticate(string $nameOrEmail, string $password): ?array
     {
         $user = $this->findUser($nameOrEmail);
         if (!$user) {
             return false;
         }
-
-        return password_verify($password, $user['password']);;
+        if (password_verify($password, $user['password'])) {
+            return $user;
+        }
+        return null;
     }
 }

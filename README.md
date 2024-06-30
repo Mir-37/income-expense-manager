@@ -1,8 +1,8 @@
-# Income Expense Tracker
+# Income Expense Manager
 
 ## Description
 
-Income Expense Tracker App (version 1.0.0) is a simple console-based application that helps users track their incomes and expenses. Users can add entries for income, expenses, and categories, view total savings, and manage their financial data efficiently.
+Income Expense Manager App (version 1.0.0) is a simple console-based application that helps users track their incomes and expenses. Users can add entries for income, expenses, and categories, view total savings, and manage their financial data efficiently.
 It is a test project. I will try to scale it to test my skills.
 
 ## Requirements

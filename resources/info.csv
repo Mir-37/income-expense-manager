@@ -1,5 +1,8 @@
 id,user_id,category,amount,type,date_added
-1,1,1200,1,income,2024-06-30
-2,1,1200,1,income,2024-06-30
-3,1,1200,1,income,2024-06-30
-4,1,1200,jama,income,2024-06-30
+1,1,1200,Jama,income,2024-06-30
+2,1,1500,Jama,income,2024-06-30
+3,1,1000,Furniture,income,2024-06-30
+4,1,1200,Jama,income,2024-06-30
+5,1,200,Food,expense,2024-06-30
+6,1,100,Food,income,2024-06-30
+7,1,120.56,Transport,income,2024-06-30

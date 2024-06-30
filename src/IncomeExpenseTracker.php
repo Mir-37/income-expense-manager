@@ -19,13 +19,18 @@ class IncomeExpenseTracker
     private AuthManager $auth_manager;
     private array $data;
     private InfoFile $infoFile;
-    public array $income_array;
-    public array $expense_array;
+    public array $income_array = [];
+    public array $expense_array = [];
 
     public function __construct(AuthManager $auth_manager)
     {
         $this->auth_manager = $auth_manager;
         $this->infoFile = new InfoFile();
+        $this->reloadData();
+    }
+
+    private function reloadData(): void
+    {
         $this->data = $this->getInfoFromUser($this->auth_manager);
     }
 
@@ -37,11 +42,7 @@ class IncomeExpenseTracker
         if ($amount < 0) {
             throw new Exception(ucfirst($type) . " amount can't be negative");
         }
-        if (count($this->data) >= 1) {
-            $this->total = $this->getTotalIncome() - $this->getTotalExpense();
-        } else {
-            $this->total = 0.0;
-        }
+
         $data = [
             'user_id' => $this->auth_manager->getUserId(),
             'category' => $category,
@@ -51,20 +52,23 @@ class IncomeExpenseTracker
         ];
 
         $this->infoFile->insert($data);
+        // print_r($this->data);
+        $this->reloadData();
     }
 
     public function getTotalIncome(): float
     {
+        $this->reloadData();
         $this->income_array = array_filter($this->data, function ($rec) {
             return strtolower($rec[Constant::TYPE]) === 'income';
         });
-
         $this->income = array_sum(array_column($this->income_array, Constant::AMOUNT));
         return $this->income;
     }
 
     public function getTotalExpense(): float
     {
+        $this->reloadData();
         $this->expense_array = array_filter($this->data, function ($rec) {
             return strtolower($rec[Constant::TYPE]) === 'expense';
         });
@@ -75,6 +79,7 @@ class IncomeExpenseTracker
 
     public function getCategories(): array
     {
+        $this->reloadData();
         $category_array = array_filter($this->data, function ($rec) {
             return strtolower($rec[Constant::CATEGORY]) !== '';
         });
@@ -83,7 +88,7 @@ class IncomeExpenseTracker
         return $this->categories;
     }
 
-    public function setCategory(string $category)
+    public function setCategory(string $category): void
     {
         if (empty($category)) throw new Exception("Category can't be empty");
         $this->category = $category;
@@ -91,18 +96,21 @@ class IncomeExpenseTracker
 
     public function getAllData(): array
     {
+        $this->reloadData();
         return $this->data;
     }
 
-    public function viewEachIncome()
+    public function viewEachIncome(): array
     {
+        $this->reloadData();
         return array_filter($this->data, function ($rec) {
             return strtolower($rec[Constant::TYPE]) === 'income';
         });
     }
 
-    public function viewExpense()
+    public function viewExpense(): array
     {
+        $this->reloadData();
         return array_filter($this->data, function ($rec) {
             return strtolower($rec[Constant::TYPE]) === 'expense';
         });
@@ -110,16 +118,25 @@ class IncomeExpenseTracker
 
     public function viewSavings(): float
     {
+        $this->reloadData();
+        if (count($this->data) >= 1) {
+            $this->total = $this->getTotalIncome() - $this->getTotalExpense();
+        } else {
+            $this->total = 0.0;
+        }
+        // print_r($this->income_array);
         return $this->total;
     }
 
     public function viewAllCategories()
     {
+        $this->reloadData();
         return $this->getCategories();
     }
 
     public function viewIncomeExpenseCategoryWise(string $category)
     {
+        $this->reloadData();
         return array_filter($this->data, function ($rec) use ($category) {
             return strtolower($rec[Constant::CATEGORY]) === strtolower($category);
         });

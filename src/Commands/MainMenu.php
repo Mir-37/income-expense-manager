@@ -53,7 +53,7 @@ class MainMenu
                     $this->viewSavings($this->tracker);
                     break;
                 case 'Add Income':
-                    $this->addIncome();
+                    $this->addIncome($this->tracker);
                     break;
                 case 'Add Expense':
                     $this->addExpense();
@@ -79,10 +79,22 @@ class MainMenu
         } while (true);
     }
 
-    private function addIncome()
+    private function addIncome(IncomeExpenseTracker $tracker)
     {
-        $categoryQuestion = new Question('Enter the category of income: ');
+        $categories = $this->tracker->getCategories();
+        $categories[] = 'New Category';
+
+        $categoryQuestion = new ChoiceQuestion(
+            'Select from previous categories or enter a new one: ',
+            $categories
+        );
+
         $category = $this->helper->ask($this->input, $this->output, $categoryQuestion);
+
+        if ($category === 'New Category') {
+            $newCategoryQuestion = new Question('Enter the new category of income: ');
+            $category = $this->helper->ask($this->input, $this->output, $newCategoryQuestion);
+        }
 
         $amountQuestion = new Question('Enter the amount of income: ');
         $amount = $this->helper->ask($this->input, $this->output, $amountQuestion);
@@ -97,8 +109,20 @@ class MainMenu
 
     private function addExpense()
     {
-        $categoryQuestion = new Question('Enter the category of expense: ');
+        $categories = $this->tracker->getCategories();
+        $categories[] = 'New Category';
+
+        $categoryQuestion = new ChoiceQuestion(
+            'Select from previous categories or enter a new one: ',
+            $categories
+        );
+
         $category = $this->helper->ask($this->input, $this->output, $categoryQuestion);
+
+        if ($category === 'New Category') {
+            $newCategoryQuestion = new Question('Enter the new category of expense: ');
+            $category = $this->helper->ask($this->input, $this->output, $newCategoryQuestion);
+        }
 
         $amountQuestion = new Question('Enter the amount of expense: ');
         $amount = $this->helper->ask($this->input, $this->output, $amountQuestion);
@@ -115,8 +139,13 @@ class MainMenu
     {
         $incomes = $this->tracker->viewEachIncome();
         $this->output->writeln('Incomes:');
-        foreach ($incomes as $income) {
-            $this->output->writeln('Category: ' . $income[Constant::CATEGORY] . ', Amount: ' . $income[Constant::AMOUNT]);
+
+        if (count($incomes) < 1) {
+            $this->output->writeln('No Incomes Found..');
+        } else {
+            foreach ($incomes as $income) {
+                $this->output->writeln('Category: ' . $income[Constant::CATEGORY] . ', Amount: ' . $income[Constant::AMOUNT]);
+            }
         }
     }
 
@@ -124,8 +153,12 @@ class MainMenu
     {
         $expenses = $this->tracker->viewExpense();
         $this->output->writeln('Expenses:');
-        foreach ($expenses as $expense) {
-            $this->output->writeln('Category: ' . $expense[Constant::CATEGORY] . ', Amount: ' . $expense[Constant::AMOUNT]);
+        if (count($expenses) < 1) {
+            $this->output->writeln('No Expenses Found..');
+        } else {
+            foreach ($expenses as $expense) {
+                $this->output->writeln('Category: ' . $expense[Constant::CATEGORY] . ', Amount: ' . $expense[Constant::AMOUNT]);
+            }
         }
     }
 
@@ -133,13 +166,28 @@ class MainMenu
     {
         $categories = $this->tracker->viewAllCategories();
         $this->output->writeln('Categories:');
-        foreach ($categories as $category) {
-            $this->output->writeln($category);
+        if (count($categories) < 1) {
+            $this->output->writeln('No categories found..');
+        } else {
+            foreach ($categories as $category) {
+                $this->output->writeln($category);
+            }
         }
     }
 
     public function viewSavings(IncomeExpenseTracker $tracker): void
     {
+        $expenses = $this->tracker->viewExpense();
+        $incomes = $this->tracker->viewEachIncome();
+
+        if (count($expenses) < 1) {
+            $this->output->writeln('You have no expenses..');
+        }
+
+        if (count($incomes) < 1) {
+            $this->output->writeln('You have no incomes..');
+        }
+
         $this->output->writeln('Total Savings: ' . $tracker->viewSavings());
     }
 }

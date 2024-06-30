@@ -74,7 +74,7 @@ abstract class FileManager
     {
         $file = $this->openFile("a");
         $preparedData = $this->prepareInsertData($data);
-        print_r($preparedData);
+        // print_r($preparedData);
         fputcsv($file, $preparedData);
         fflush($file);
         fclose($file);

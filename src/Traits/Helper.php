@@ -50,12 +50,14 @@ trait Helper
     {
         $infos = new InfoFile();
         $users_data = $infos->getAllDataFromFile();
-
-        return array_filter($users_data, function ($record) use ($auth_manager): bool {
-            if (strtolower((int)$record[Constant::USER_ID]) === $auth_manager->getUserId()) {
+        // print_r($users_data);
+        $arr = array_filter($users_data, function ($record) use ($auth_manager): bool {
+            if ((int)$record[Constant::USER_ID] === $auth_manager->getUserId()) {
                 return true;
             }
             return false;
         });
+        // print_r($arr);
+        return $arr;
     }
 }

@@ -47,7 +47,6 @@ class IncomeExpenseTracker
             'category' => $category,
             'amount' => $amount,
             'type' => $type,
-            'total' => $this->total,
             'date_added' => (new DateTime('now'))->format('Y-m-d')
         ];
 

@@ -23,8 +23,8 @@ class InfoFile extends FileManager
         return [
             $row[Constant::ID],
             $data['user_id'] ?? $row[Constant::USER_ID],
-            $data['category'] ?? $row[Constant::CATEGORY],
             $data['amount'] ?? $row[Constant::AMOUNT],
+            $data['category'] ?? $row[Constant::CATEGORY],
             $data['type'] ?? $row[Constant::TYPE],
             $data['date_added'] ?? $row[Constant::DATE_ADDED]
         ];
@@ -38,8 +38,8 @@ class InfoFile extends FileManager
         return [
             ++$this->id,
             $data['user_id'],
-            $data['category'] ?? "",
             $data['amount'] ?? "0.0",
+            $data['category'] ?? "",
             $data['type'] ?? "",
             $data['date_added'] ?? $result
         ];

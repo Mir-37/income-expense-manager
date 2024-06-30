@@ -29,92 +29,117 @@ class MainMenu
         $this->output = $output;
         $this->helper = $helper;
         $this->auth_manager = $auth_manager;
+        $this->tracker = new IncomeExpenseTracker($auth_manager);
     }
 
     public function showMainMenu()
     {
-        $this->output->write(sprintf("\033\143"));
-        $this->output->writeln('<info>               Main Menu           </info>');
-        $this->output->writeln('=======================================');
+        do {
+            $this->output->write(sprintf("\033\143"));
+            $this->output->writeln('<info>               Main Menu           </info>');
+            $this->output->writeln('=======================================');
 
-        $mainMenuQuestion = new ChoiceQuestion(
-            'Please select an option',
-            ['View Savings', 'Add Income', 'Add Expense', 'View Incomes', 'View Expenses', 'View Categories', 'Exit'],
-            0
-        );
-        $mainMenuQuestion->setErrorMessage('Option %s is invalid.');
+            $mainMenuQuestion = new ChoiceQuestion(
+                'Please select an option',
+                ['View Savings', 'Add Income', 'Add Expense', 'View Incomes', 'View Expenses', 'View Categories', 'Exit'],
+                0
+            );
+            $mainMenuQuestion->setErrorMessage('Option %s is invalid.');
 
-        $mainOption = $this->helper->ask($this->input, $this->output, $mainMenuQuestion);
+            $mainOption = $this->helper->ask($this->input, $this->output, $mainMenuQuestion);
 
-        $tracker = new IncomeExpenseTracker($this->auth_manager);
+            switch ($mainOption) {
+                case 'View Savings':
+                    $this->viewSavings($this->tracker);
+                    break;
+                case 'Add Income':
+                    $this->addIncome();
+                    break;
+                case 'Add Expense':
+                    $this->addExpense();
+                    break;
+                case 'View Incomes':
+                    $this->viewIncomes();
+                    break;
+                case 'View Expenses':
+                    $this->viewExpenses();
+                    break;
+                case 'View Categories':
+                    $this->viewCategories();
+                    break;
+                case 'Exit':
+                    $this->output->writeln('<info>Exiting the application. Goodbye!</info>');
+                    return;
+                default:
+                    $this->output->writeln('<error>Invalid Option</error>');
+            }
 
-        switch ($mainOption) {
-            case 'View Savings':
-                $this->output->writeln('Total Savings: ' . $tracker->viewSavings());
-                break;
-            case 'Add Income':
-                $categoryQuestion = new Question('Enter the category of income: ');
-                $category = $this->helper->ask($this->input, $this->output, $categoryQuestion);
+            $this->output->writeln('Press Enter to return to the main menu.');
+            $this->helper->ask($this->input, $this->output, new Question(''));
+        } while (true);
+    }
 
-                $amountQuestion = new Question('Enter the amount of income: ');
-                $amount = $this->helper->ask($this->input, $this->output, $amountQuestion);
+    private function addIncome()
+    {
+        $categoryQuestion = new Question('Enter the category of income: ');
+        $category = $this->helper->ask($this->input, $this->output, $categoryQuestion);
 
-                try {
-                    $tracker->addEntry("income", floatval($amount), $category);
-                    $this->output->writeln('<info>Income added successfully.</info>');
-                } catch (Exception $e) {
-                    $this->output->writeln('<error>' . $e->getMessage() . '</error>');
-                }
-                break;
-            case 'Add Expense':
-                $categoryQuestion = new Question('Enter the category of expense: ');
-                $category = $this->helper->ask($this->input, $this->output, $categoryQuestion);
+        $amountQuestion = new Question('Enter the amount of income: ');
+        $amount = $this->helper->ask($this->input, $this->output, $amountQuestion);
 
-                $amountQuestion = new Question('Enter the amount of expense: ');
-                $amount = $this->helper->ask($this->input, $this->output, $amountQuestion);
-
-                $tracker->addEntry("income", $category, $amount);
-                try {
-                    $tracker->addEntry("income", $category, $amount);
-                    $this->output->writeln('<info>Income added successfully.</info>');
-                } catch (Exception $e) {
-                    $this->output->writeln('<error>' . $e->getMessage() . '</error>');
-                }
-                break;
-            case 'View Incomes':
-                $arr = $tracker->income_array;
-                $this->output->writeln(
-                    "Incomes: "
-                );
-                foreach ($arr as $key => $value) {
-                    $this->output->writeln(
-                        "Category: " . $value[Constant::CATEGORY] .
-                            "Amount: ",
-                        $value[Constant::AMOUNT]
-                    );
-                }
-                break;
-            case 'View Expenses':
-                $arr = $tracker->expense_array;
-                $this->output->writeln(
-                    "Expenses: "
-                );
-                foreach ($arr as $key => $value) {
-                    $this->output->writeln(
-                        "Category: " . $value[Constant::CATEGORY] .
-                            "Amount: ",
-                        $value[Constant::AMOUNT]
-                    );
-                }
-                break;
-            case 'View Categories':
-                $this->output->writeln(
-                    "All categories: "
-                );
-                $tracker->viewAllCategories();
-                break;
-            default:
-                $this->output->writeln('<error>Invalid Option</error>');
+        try {
+            $this->tracker->addEntry("income", floatval($amount), $category);
+            $this->output->writeln('<info>Income added successfully.</info>');
+        } catch (Exception $e) {
+            $this->output->writeln('<error>' . $e->getMessage() . '</error>');
         }
+    }
+
+    private function addExpense()
+    {
+        $categoryQuestion = new Question('Enter the category of expense: ');
+        $category = $this->helper->ask($this->input, $this->output, $categoryQuestion);
+
+        $amountQuestion = new Question('Enter the amount of expense: ');
+        $amount = $this->helper->ask($this->input, $this->output, $amountQuestion);
+
+        try {
+            $this->tracker->addEntry("expense", floatval($amount), $category);
+            $this->output->writeln('<info>Expense added successfully.</info>');
+        } catch (Exception $e) {
+            $this->output->writeln('<error>' . $e->getMessage() . '</error>');
+        }
+    }
+
+    private function viewIncomes()
+    {
+        $incomes = $this->tracker->viewEachIncome();
+        $this->output->writeln('Incomes:');
+        foreach ($incomes as $income) {
+            $this->output->writeln('Category: ' . $income[Constant::CATEGORY] . ', Amount: ' . $income[Constant::AMOUNT]);
+        }
+    }
+
+    private function viewExpenses()
+    {
+        $expenses = $this->tracker->viewExpense();
+        $this->output->writeln('Expenses:');
+        foreach ($expenses as $expense) {
+            $this->output->writeln('Category: ' . $expense[Constant::CATEGORY] . ', Amount: ' . $expense[Constant::AMOUNT]);
+        }
+    }
+
+    private function viewCategories()
+    {
+        $categories = $this->tracker->viewAllCategories();
+        $this->output->writeln('Categories:');
+        foreach ($categories as $category) {
+            $this->output->writeln($category);
+        }
+    }
+
+    public function viewSavings(IncomeExpenseTracker $tracker): void
+    {
+        $this->output->writeln('Total Savings: ' . $tracker->viewSavings());
     }
 }

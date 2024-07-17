@@ -16,7 +16,7 @@ It is a test project. I will try to scale it to test my skills.
 1. **Clone the repository Or Download**
 
     ```bash
-    git clone https://github.com/yourusername/expense_app.git
+    git clone [https://github.com/Mir-37/income-expense-manager.git](https://github.com/Mir-37/income-expense-manager.git)
     ```
 
 2. **Change directory to the project**

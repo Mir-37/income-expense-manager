@@ -48,12 +48,9 @@ class AuthManager
     public function authenticate(string $nameOrEmail, string $password): ?array
     {
         $user = $this->findUser($nameOrEmail);
-        // var_dump($user);
         if (!$user) {
             return null;
         }
-        // var_dump(password_hash(trim($password), PASSWORD_BCRYPT));
-        // var_dump($user['password']);
         if (password_verify($password, $user['password'])) {
             $this->user = $user;
             return $user;

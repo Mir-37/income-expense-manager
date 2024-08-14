@@ -11,16 +11,10 @@ use Hellm\ExpenseApp\Traits\Helper;
 class IncomeExpenseTracker
 {
     use Helper;
-    private float $income = 0.0;
-    private float $expense = 0.0;
-    private float $total = 0.0;
-    private array $categories;
-    private string $category;
+
     private AuthManager $auth_manager;
-    private array $data;
     private InfoFile $infoFile;
-    public array $income_array = [];
-    public array $expense_array = [];
+    private array $data;
 
     public function __construct(AuthManager $auth_manager)
     {
@@ -34,107 +28,94 @@ class IncomeExpenseTracker
         $this->data = $this->getInfoFromUser($this->auth_manager);
     }
 
+    public function getData(): array
+    {
+        return $this->data;
+    }
+
     public function addEntry(string $type, float $amount, string $category = ""): void
     {
-        if (!in_array(strtolower($type), ['income', 'expense', 'category'])) {
-            throw new Exception("Invalid entry type. Must be 'income', 'expense', or 'category'.");
-        }
-        if ($amount < 0) {
-            throw new Exception(ucfirst($type) . " amount can't be negative");
-        }
+        $this->validateEntry($type, $amount);
 
         $data = [
             'user_id' => $this->auth_manager->getUserId(),
             'category' => $category,
             'amount' => $amount,
             'type' => $type,
-            'date_added' => (new DateTime('now'))->format('Y-m-d')
+            'date_added' => (new DateTime())->format('Y-m-d'),
         ];
 
         $this->infoFile->insert($data);
-        // print_r($this->data);
         $this->reloadData();
+    }
+
+    private function validateEntry(string $type, float $amount): void
+    {
+        if (!in_array(strtolower($type), ['income', 'expense'])) {
+            throw new Exception("Invalid entry type. Must be 'income' or 'expense'.");
+        }
+
+        if ($amount < 0) {
+            throw new Exception(ucfirst($type) . " amount can't be negative.");
+        }
     }
 
     public function getTotalIncome(): float
     {
-        $this->reloadData();
-        $this->income_array = array_filter($this->data, function ($rec) {
-            return strtolower($rec[Constant::TYPE]) === 'income';
-        });
-        $this->income = array_sum(array_column($this->income_array, Constant::AMOUNT));
-        return $this->income;
+        return $this->calculateTotal('income');
     }
 
     public function getTotalExpense(): float
     {
+        return $this->calculateTotal('expense');
+    }
+
+    private function calculateTotal(string $type): float
+    {
         $this->reloadData();
-        $this->expense_array = array_filter($this->data, function ($rec) {
-            return strtolower($rec[Constant::TYPE]) === 'expense';
+        $filteredData = array_filter($this->data, function ($rec) use ($type) {
+            return strtolower($rec[Constant::TYPE]) === $type;
         });
 
-        $this->expense = array_sum(array_column($this->expense_array, Constant::AMOUNT));
-        return $this->expense;
+        return array_sum(array_column($filteredData, Constant::AMOUNT));
     }
 
     public function getCategories(): array
     {
         $this->reloadData();
-        $category_array = array_filter($this->data, function ($rec) {
-            return strtolower($rec[Constant::CATEGORY]) !== '';
-        });
-
-        $this->categories = array_unique(array_column($category_array, Constant::CATEGORY));
-        return $this->categories;
+        $categories = array_unique(array_column($this->data, Constant::CATEGORY));
+        return array_filter($categories);
     }
 
-    public function setCategory(string $category): void
+    public function viewIncomes(): array
     {
-        if (empty($category)) throw new Exception("Category can't be empty");
-        $this->category = $category;
+        return $this->filterByType('income');
     }
 
-    public function getAllData(): array
+    public function viewExpenses(): array
     {
-        $this->reloadData();
-        return $this->data;
+        return $this->filterByType('expense');
     }
 
-    public function viewEachIncome(): array
+    private function filterByType(string $type): array
     {
         $this->reloadData();
-        return array_filter($this->data, function ($rec) {
-            return strtolower($rec[Constant::TYPE]) === 'income';
-        });
-    }
-
-    public function viewExpense(): array
-    {
-        $this->reloadData();
-        return array_filter($this->data, function ($rec) {
-            return strtolower($rec[Constant::TYPE]) === 'expense';
+        return array_filter($this->data, function ($rec) use ($type) {
+            return strtolower($rec[Constant::TYPE]) === $type;
         });
     }
 
     public function viewSavings(): float
     {
-        $this->reloadData();
-        if (count($this->data) >= 1) {
-            $this->total = $this->getTotalIncome() - $this->getTotalExpense();
-        } else {
-            $this->total = 0.0;
-        }
-        // print_r($this->income_array);
-        return $this->total;
+        return $this->getTotalIncome() - $this->getTotalExpense();
     }
 
-    public function viewAllCategories()
+    public function viewAllCategories(): array
     {
-        $this->reloadData();
         return $this->getCategories();
     }
 
-    public function viewIncomeExpenseCategoryWise(string $category)
+    public function viewIncomeExpenseCategoryWise(string $category): array
     {
         $this->reloadData();
         return array_filter($this->data, function ($rec) use ($category) {

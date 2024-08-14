@@ -56,6 +56,7 @@ class AuthMenu
 
             if (!is_null($login) && count($login) >= 1) {
                 $output->writeln('<info>Welcome, ' . $login['name'] . '!</info>');
+                sleep(2);
                 return $this->auth_manager;
             }
 
@@ -66,7 +67,7 @@ class AuthMenu
         return null;
     }
 
-    private function handleRegister(InputInterface $input, OutputInterface $output, HelperInterface $helper): bool
+    private function handleRegister(InputInterface $input, OutputInterface $output, HelperInterface $helper): bool|AuthManager
     {
         $output->write(sprintf("\033\143"));
         $output->writeln('<info>               Register           </info>');
@@ -87,8 +88,8 @@ class AuthMenu
 
         if ($register) {
             $output->writeln('<info>Registration successful. Please login.</info>');
+            sleep(2);
             return $this->handleLogin($input, $output, $helper);
-            // return true;
         } else {
             $output->writeln('<error>Registration failed. Try again.</error>');
             return false;

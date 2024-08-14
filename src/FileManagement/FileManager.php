@@ -18,7 +18,6 @@ abstract class FileManager
     public function __construct(string $file_name, array $headers)
     {
         $this->directory = dirname(dirname(__DIR__)) . "/resources/";
-        // echo $this->directory;
         $this->file_name = $file_name . ".csv";
         $this->file_path = $this->directory . $this->file_name;
         $this->headers = $headers;
@@ -74,7 +73,6 @@ abstract class FileManager
     {
         $file = $this->openFile("a");
         $preparedData = $this->prepareInsertData($data);
-        // print_r($preparedData);
         fputcsv($file, $preparedData);
         fflush($file);
         fclose($file);
@@ -97,7 +95,6 @@ abstract class FileManager
         fclose($file);
     }
 
-    // depending on file prepare data to be updated
     abstract protected function prepareUpdateData(array $row, array $data): array;
     abstract protected function prepareInsertData(array $data): array;
 

@@ -41,6 +41,11 @@ php index.php manage-income-expense
 
 This will start the console application, and you can interact with the main menu to add income, add expenses, view savings, and manage your financial data.
 
+## Test Drive Data
+
+Name: Mir
+Password: password
+
 ## Main Menu Options
 
 -   **Register:** Register to the app.

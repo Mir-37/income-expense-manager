@@ -43,12 +43,16 @@ This will start the console application, and you can interact with the main menu
 
 ## Main Menu Options
 
+-   **Register:** Register to the app.
+-   **Login:** Login to the app.
 -   **View Savings:** View the total savings calculated as total income minus total expenses.
 -   **Add Income:** Add an entry for income, specifying the category and amount.
 -   **Add Expense:** Add an entry for expense, specifying the category and amount.
 -   **View Incomes:** View a list of all income entries.
 -   **View Expenses:** View a list of all expense entries.
 -   **View Categories:** View a list of all categories used in income and expense entries.
+-   **View History:** View a list of all transactions made in income and expense entries.
+-   **Search By Category :** View a list of all transactions made under a certain category.
 -   **Exit:** Exit the application.
 
 ## Example

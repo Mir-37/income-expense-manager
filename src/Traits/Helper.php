@@ -2,9 +2,9 @@
 
 namespace Hellm\ExpenseApp\Traits;
 
+use Hellm\ExpenseApp\Constant;
 use Hellm\ExpenseApp\AuthManager;
 use Hellm\ExpenseApp\FileManagement\InfoFile;
-use Hellm\ExpenseApp\Constant;
 use Hellm\ExpenseApp\FileManagement\UserFile;
 
 
@@ -28,7 +28,6 @@ trait Helper
     {
         $user = new UserFile();
         $csvArray = $user->getAllDataFromFile();
-        // print_r($csvArray);
         foreach ($csvArray as $key => $value) {
             if (
                 strtolower($value[Constant::NAME]) === strtolower($nameOrEmail) ||
@@ -50,14 +49,12 @@ trait Helper
     {
         $infos = new InfoFile();
         $users_data = $infos->getAllDataFromFile();
-        // print_r($users_data);
         $arr = array_filter($users_data, function ($record) use ($auth_manager): bool {
             if ((int)$record[Constant::USER_ID] === $auth_manager->getUserId()) {
                 return true;
             }
             return false;
         });
-        // print_r($arr);
         return $arr;
     }
 }
